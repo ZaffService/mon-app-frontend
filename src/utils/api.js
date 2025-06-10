@@ -1,30 +1,26 @@
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://mon-app-backend.onrender.com'
-  : 'http://localhost:3000';
+const API_BASE_URL = 'http://localhost:5001';
 
 export const api = {
-  async getUsers() {
-    const response = await fetch(`${API_BASE_URL}/users`);
-    return response.json();
+  async getChats() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/chats`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Erreur réseau');
+      return await response.json();
+    } catch (error) {
+      console.error('Erreur getChats:', error);
+      throw error;
+    }
   },
-}
-
-const API_URL = 'http://localhost:5001'
-
-export async function getChats() {
-  try {
-    const response = await fetch(`${API_URL}/chats`)
-    if (!response.ok) throw new Error('Erreur réseau')
-    return await response.json()
-  } catch (error) {
-    console.error('Erreur getChats:', error)
-    throw error
-  }
 }
 
 export async function getMessages(userId) {
   try {
-    const response = await fetch(`${API_URL}/chats/${userId}`)
+    const response = await fetch(`${API_BASE_URL}/chats/${userId}`)
     if (!response.ok) throw new Error('Erreur réseau')
     const chat = await response.json()
     return chat.messages || []
@@ -37,7 +33,7 @@ export async function getMessages(userId) {
 export async function addMessage(userId, message) {
   try {
     // Récupérer le chat actuel
-    const response = await fetch(`${API_URL}/chats/${userId}`)
+    const response = await fetch(`${API_BASE_URL}/chats/${userId}`)
     if (!response.ok) {
       console.error(`Chat ${userId} non trouvé, création...`)
       // Si le chat n'existe pas, le créer
@@ -49,7 +45,7 @@ export async function addMessage(userId, message) {
     chat.messages.push(message)
     
     // Mettre à jour le chat
-    const updateResponse = await fetch(`${API_URL}/chats/${userId}`, {
+    const updateResponse = await fetch(`${API_BASE_URL}/chats/${userId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -68,7 +64,7 @@ export async function addMessage(userId, message) {
 
 export async function updateChat(userId, updates) {
   try {
-    const response = await fetch(`${API_URL}/chats/${userId}`)
+    const response = await fetch(`${API_BASE_URL}/chats/${userId}`)
     if (!response.ok) {
       console.warn(`Chat ${userId} non trouvé pour mise à jour`)
       return null // Ne pas lancer d'erreur, juste ignorer
@@ -77,7 +73,7 @@ export async function updateChat(userId, updates) {
     const chat = await response.json()
     Object.assign(chat, updates)
     
-    const updateResponse = await fetch(`${API_URL}/chats/${userId}`, {
+    const updateResponse = await fetch(`${API_BASE_URL}/chats/${userId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -108,7 +104,7 @@ async function createChatForUser(userId, message) {
       isOnline: false
     }
     
-    const response = await fetch(`${API_URL}/chats`, {
+    const response = await fetch(`${API_BASE_URL}/chats`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -127,7 +123,7 @@ async function createChatForUser(userId, message) {
 
 export async function createUser(userData) {
   try {
-    const response = await fetch(`${API_URL}/chats`, {
+    const response = await fetch(`${API_BASE_URL}/chats`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -151,14 +147,14 @@ export async function createUser(userData) {
 
 export async function updateUserStatus(userId, isOnline) {
   try {
-    const response = await fetch(`${API_URL}/chats/${userId}`)
+    const response = await fetch(`${API_BASE_URL}/chats/${userId}`)
     if (!response.ok) return
     
     const chat = await response.json()
     chat.isOnline = isOnline
     chat.lastSeen = new Date().toISOString()
     
-    await fetch(`${API_URL}/chats/${userId}`, {
+    await fetch(`${API_BASE_URL}/chats/${userId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
