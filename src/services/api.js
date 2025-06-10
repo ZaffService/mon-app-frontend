@@ -1,6 +1,6 @@
 const API_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:5001'
-    : 'https://mon-app-backend.onrender.com'; // Mettez votre URL de production correcte
+    : 'https://mon-app-backend.onrender.com';
 
 const defaultOptions = {
     credentials: 'include',
@@ -33,22 +33,21 @@ export const sendMessage = async (message) => {
         const response = await fetch(`${API_URL}/chats`, {
             ...defaultOptions,
             method: 'POST',
-            body: JSON.stringify(message)
+            body: JSON.stringify({
+                ...message,
+                timestamp: new Date().toISOString()
+            })
         });
 
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Erreur mise à jour');
         }
 
-        const result = await response.json();
-        
-        // Mettre à jour le state local immédiatement
-        updateLocalChat(result);
-        
-        return result;
+        return await response.json();
     } catch (error) {
         console.error('Error sending message:', error);
-        throw error;
+        throw new Error('Erreur mise à jour');
     }
 };
 

@@ -794,22 +794,33 @@ function setupMessageInput() {
 }
 
 async function sendMessage(message) {
-  if (!currentChat) return
+  if (!currentChat) return;
 
   try {
-    currentChat.messages.push(message)
-    currentChat.lastMessage = message.type === "text" ? message.text : `📎 ${message.fileName || "Fichier"}`
-    currentChat.time = message.time
-    currentChat.lastMessageTime = message.timestamp
+    // Mise à jour locale immédiate
+    currentChat.messages = currentChat.messages || [];
+    currentChat.messages.push(message);
+    currentChat.lastMessage = message.type === "text" ? message.text : `📎 ${message.fileName || "Fichier"}`;
+    currentChat.time = message.time;
+    currentChat.lastMessageTime = message.timestamp;
 
-    await addMessage(currentChat.id, message)
-    await updateChat(currentChat)
+    // Mise à jour UI immédiate
+    renderMessages();
+    renderChatList();
 
-    renderMessages()
-    renderChatList()
+    // Envoi asynchrone au serveur
+    await Promise.all([
+      addMessage(currentChat.id, message),
+      updateChat(currentChat.id, {
+        lastMessage: currentChat.lastMessage,
+        time: currentChat.time,
+        lastMessageTime: currentChat.lastMessageTime
+      })
+    ]);
+
   } catch (error) {
-    console.error("Erreur envoi message:", error)
-    showToast("Erreur lors de l'envoi", "error")
+    console.error("Erreur envoi message:", error);
+    showToast("Erreur lors de l'envoi", "error");
   }
 }
 
