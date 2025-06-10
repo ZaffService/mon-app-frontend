@@ -7,6 +7,7 @@ export default defineConfig({
       "/api": {
         target: process.env.VITE_API_URL || "https://mon-app-backend.onrender.com",
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
       },
     },
   },
