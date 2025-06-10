@@ -1,6 +1,9 @@
-const API_BASE_URL = 'http://localhost:5001';
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? 'https://votre-backend.onrender.com'
+  : 'http://localhost:5001';
 
-export const api = {
+// API principale
+const api = {
   async getChats() {
     try {
       const response = await fetch(`${API_BASE_URL}/chats`);
@@ -13,29 +16,36 @@ export const api = {
 
   async updateUserStatus(userId, isOnline) {
     try {
-      const response = await fetch(`${API_BASE_URL}/chats/${userId}`)
-      if (!response.ok) return
+      const response = await fetch(`${API_BASE_URL}/chats/${userId}`);
+      if (!response.ok) throw new Error('Erreur réseau');
       
-      const chat = await response.json()
-      chat.isOnline = isOnline
-      chat.lastSeen = new Date().toISOString()
-      
-      await fetch(`${API_BASE_URL}/chats/${userId}`, {
+      const user = await response.json();
+      const updatedUser = {
+        ...user,
+        isOnline,
+        lastSeen: new Date().toISOString()
+      };
+
+      const updateResponse = await fetch(`${API_BASE_URL}/chats/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(chat)
-      })
-      
+        body: JSON.stringify(updatedUser)
+      });
+
+      if (!updateResponse.ok) throw new Error('Erreur mise à jour statut');
+      return await updateResponse.json();
     } catch (error) {
-      console.error('Erreur updateUserStatus:', error)
+      console.error('Erreur updateUserStatus:', error);
+      throw error;
     }
   }
 };
 
-// Exportez les fonctions individuellement
+// Exportation des fonctions
 export const { getChats, updateUserStatus } = api;
+export default api;
 
 export async function getMessages(userId) {
   try {
@@ -161,28 +171,6 @@ export async function createUser(userData) {
   } catch (error) {
     console.error('Erreur createUser:', error)
     throw error
-  }
-}
-
-export async function updateUserStatus(userId, isOnline) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/chats/${userId}`)
-    if (!response.ok) return
-    
-    const chat = await response.json()
-    chat.isOnline = isOnline
-    chat.lastSeen = new Date().toISOString()
-    
-    await fetch(`${API_BASE_URL}/chats/${userId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(chat)
-    })
-    
-  } catch (error) {
-    console.error('Erreur updateUserStatus:', error)
   }
 }
 
