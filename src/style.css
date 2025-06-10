@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  #callModal {
+    @apply bg-modal;
+  }
+}
+
+/* Remplacez tous les \ simples par \\ ou supprimez-les s'ils ne sont pas nécessaires */
+
 /* Variables CSS pour les couleurs WhatsApp */
 @layer base {
   :root {
@@ -376,10 +384,9 @@
 #callModal {
   backdrop-filter: blur(10px);
 }
-\
-#callModal .bg-\[#202c33\] {
-  border: 1px solid #374151;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+
+.call-modal-content {
+  @apply bg-[#202c33] border border-[#374151] shadow-lg;
 }
 
 /* Audio visualizer */
@@ -662,4 +669,11 @@ button:disabled:hover {
 #voiceBtn.recording {
   @apply text-red-500;
   animation: pulse 1s infinite;
+}
+
+/* Si vous avez besoin d'une bordure personnalisée, utilisez @layer */
+@layer components {
+  .custom-border {
+    @apply border border-gray-300;
+  }
 }
