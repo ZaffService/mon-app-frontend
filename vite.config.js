@@ -15,11 +15,18 @@ export default defineConfig({
     outDir: "dist",
     assetsDir: "assets",
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
   },
   optimizeDeps: {
     include: ["axios"],
   },
   define: {
-    'process.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'http://localhost:3000')
-  }
+    "process.env.VITE_API_URL": JSON.stringify(
+      process.env.VITE_API_URL || "http://localhost:3000"
+    ),
+  },
 })

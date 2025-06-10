@@ -1,17 +1,16 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
-  "framework": "vite",
   "routes": [
-    { 
-      "src": "/BIG_DEAL/images/(.*)", 
-      "dest": "/BIG_DEAL/images/$1" 
-    },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "src": "/assets/(.*)",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" }
+    },
+    { 
+      "src": "/[^.]+", 
+      "dest": "/index.html",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      }
     }
   ]
 }
