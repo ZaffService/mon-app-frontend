@@ -3,20 +3,39 @@ const API_BASE_URL = 'http://localhost:5001';
 export const api = {
   async getChats() {
     try {
-      const response = await fetch(`${API_BASE_URL}/chats`, {
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      if (!response.ok) throw new Error('Erreur réseau');
+      const response = await fetch(`${API_BASE_URL}/chats`);
       return await response.json();
     } catch (error) {
       console.error('Erreur getChats:', error);
       throw error;
     }
   },
-}
+
+  async updateUserStatus(userId, isOnline) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/chats/${userId}`)
+      if (!response.ok) return
+      
+      const chat = await response.json()
+      chat.isOnline = isOnline
+      chat.lastSeen = new Date().toISOString()
+      
+      await fetch(`${API_BASE_URL}/chats/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(chat)
+      })
+      
+    } catch (error) {
+      console.error('Erreur updateUserStatus:', error)
+    }
+  }
+};
+
+// Exportez les fonctions individuellement
+export const { getChats, updateUserStatus } = api;
 
 export async function getMessages(userId) {
   try {

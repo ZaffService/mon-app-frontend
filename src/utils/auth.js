@@ -1,34 +1,34 @@
-import { showToast } from "./notifications.js"
-import { getChats, updateUserStatus } from "./api.js"
+import { showToast } from "./notifications.js";
+import { getChats, updateUserStatus } from "./api.js";
 
-let currentUser = null
+let currentUser = null;
 
 function checkSession() {
-  const savedUser = localStorage.getItem("currentUser")
+  const savedUser = localStorage.getItem("currentUser");
   if (savedUser) {
     try {
-      const user = JSON.parse(savedUser)
-      setCurrentUser(user)
-      return user
+      const user = JSON.parse(savedUser);
+      setCurrentUser(user);
+      return user;
     } catch (error) {
-      console.error("Erreur parsing user:", error)
-      localStorage.removeItem("currentUser")
+      console.error("Erreur parsing user:", error);
+      localStorage.removeItem("currentUser");
     }
   }
-  return null
+  return null;
 }
 
 export function getCurrentUser() {
-  return currentUser || checkSession()
+  return currentUser || checkSession();
 }
 
 export function setCurrentUser(user) {
-  currentUser = user
+  currentUser = user;
   if (user) {
-    localStorage.setItem("currentUser", JSON.stringify(user))
-    updateUserStatus(user.id, "en ligne").catch(console.error)
+    localStorage.setItem("currentUser", JSON.stringify(user));
+    updateUserStatus(user.id, "en ligne").catch(console.error);
   } else {
-    localStorage.removeItem("currentUser")
+    localStorage.removeItem("currentUser");
   }
 }
 
@@ -37,10 +37,10 @@ export function logout() {
   if (window.refreshInterval) {
     clearInterval(window.refreshInterval);
   }
-  
+
   // Nettoyer le stockage
-  localStorage.removeItem('currentUser');
-  
+  localStorage.removeItem("currentUser");
+
   // Recharger la page
   window.location.reload();
 }
@@ -49,39 +49,41 @@ export async function login(name, phone) {
   try {
     // Validation
     if (!name || !phone) {
-      showToast("Veuillez remplir tous les champs", "error")
-      return null
+      showToast("Veuillez remplir tous les champs", "error");
+      return null;
     }
 
     if (phone.length !== 9 || !/^\d+$/.test(phone)) {
-      showToast("Le numéro doit contenir exactement 9 chiffres", "error")
-      return null
+      showToast("Le numéro doit contenir exactement 9 chiffres", "error");
+      return null;
     }
 
     // Récupération des utilisateurs
-    const users = await getChats()
+    const users = await getChats();
     const user = users.find(
-      (u) => u.name.toLowerCase().trim() === name.toLowerCase().trim() && u.phone.trim() === phone.trim(),
-    )
+      (u) =>
+        u.name.toLowerCase().trim() === name.toLowerCase().trim() &&
+        u.phone.trim() === phone.trim(),
+    );
 
     if (user) {
-      setCurrentUser(user)
-      showToast(`Bienvenue ${user.name}!`, "success")
-      return user
+      setCurrentUser(user);
+      showToast(`Bienvenue ${user.name}!`, "success");
+      return user;
     } else {
-      showToast("Nom ou téléphone incorrect", "error")
-      return null
+      showToast("Nom ou téléphone incorrect", "error");
+      return null;
     }
   } catch (error) {
-    console.error("Erreur de connexion:", error)
-    showToast("Erreur de connexion au serveur", "error")
-    return null
+    console.error("Erreur de connexion:", error);
+    showToast("Erreur de connexion au serveur", "error");
+    return null;
   }
 }
 
 export function createLoginForm(onSuccess) {
-  const container = document.createElement("div")
-  container.className = "min-h-screen flex items-center justify-center bg-[#111b21] px-4"
+  const container = document.createElement("div");
+  container.className = "min-h-screen flex items-center justify-center bg-[#111b21] px-4";
 
   container.innerHTML = `
     <div class="max-w-md w-full bg-[#222e35] rounded-lg shadow-xl p-8">
@@ -135,50 +137,50 @@ export function createLoginForm(onSuccess) {
         </div>
       </div>
     </div>
-  `
+  `;
 
   // Gestionnaires d'événements
-  const form = container.querySelector("#loginForm")
-  const nameInput = container.querySelector("#nameInput")
-  const phoneInput = container.querySelector("#phoneInput")
-  const loginButton = container.querySelector("#loginButton")
+  const form = container.querySelector("#loginForm");
+  const nameInput = container.querySelector("#nameInput");
+  const phoneInput = container.querySelector("#phoneInput");
+  const loginButton = container.querySelector("#loginButton");
 
   // Validation du téléphone
   phoneInput.addEventListener("input", (e) => {
-    e.target.value = e.target.value.replace(/[^0-9]/g, "")
-  })
+    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+  });
 
   // Soumission du formulaire
   form.addEventListener("submit", async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const name = nameInput.value.trim()
-    const phone = phoneInput.value.trim()
+    const name = nameInput.value.trim();
+    const phone = phoneInput.value.trim();
 
     if (!name || !phone) {
-      showToast("Veuillez remplir tous les champs", "error")
-      return
+      showToast("Veuillez remplir tous les champs", "error");
+      return;
     }
 
-    loginButton.disabled = true
+    loginButton.disabled = true;
     loginButton.innerHTML = `
       <div class="flex items-center justify-center">
         <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
         Connexion...
       </div>
-    `
+    `;
 
     try {
-      const user = await login(name, phone)
+      const user = await login(name, phone);
 
       if (user && onSuccess) {
-        onSuccess(user)
+        onSuccess(user);
       }
     } finally {
-      loginButton.disabled = false
-      loginButton.textContent = "Se connecter"
+      loginButton.disabled = false;
+      loginButton.textContent = "Se connecter";
     }
-  })
+  });
 
-  return container
+  return container;
 }
