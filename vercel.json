@@ -3,17 +3,17 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": { 
-        "distDir": "dist",
-        "staticFolder": "public"
-      }
+      "use": "@vercel/static-build"
     }
   ],
   "routes": [
+    { 
+      "src": "/BIG_DEAL/images/(.*)", 
+      "dest": "/BIG_DEAL/images/$1" 
+    },
     {
-      "src": "/BIG_DEAL/images/(.*)",
-      "dest": "/BIG_DEAL/images/$1"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }

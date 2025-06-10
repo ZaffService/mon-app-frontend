@@ -5,9 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "vercel-build": "vite build && cp -r public/* dist/"
+    "build": "vite build && cp -r public/* dist/",
+    "preview": "vite preview"
   },
   "dependencies": {
     "axios": "^1.4.0"
