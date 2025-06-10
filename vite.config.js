@@ -5,7 +5,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: process.env.VITE_API_URL || "http://localhost:5001",
+        target: process.env.VITE_API_URL || "https://mon-app-backend.onrender.com",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
@@ -14,9 +14,6 @@ export default defineConfig({
   build: {
     outDir: "dist",
     assetsDir: "assets",
-  },
-  optimizeDeps: {
-    include: ["axios"],
   },
   define: {
     "process.env.VITE_API_URL": JSON.stringify(
